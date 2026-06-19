@@ -1,0 +1,272 @@
+/* =========================================================
+   Voice SOS Beacon — visual system
+   Concept: a wall-mounted safety panel. Status is read at a
+   glance through one indicator (color + pulse rate), the way
+   a smoke detector or alarm panel communicates state under
+   stress — no need to read text to know if things are calm.
+   ========================================================= */
+
+:root {
+  /* Housing */
+  --graphite-900: #14161a;   /* page / recessed surfaces */
+  --graphite-800: #1d2024;   /* panel face */
+  --graphite-700: #2b2f35;   /* borders, dividers, button rest state */
+
+  /* Ink */
+  --ink: #ece9e2;            /* primary text — warm, like equipment label paint */
+  --ink-dim: #8a8f97;        /* secondary text / idle indicator */
+
+  /* Status colors (these ARE the interface — not decoration) */
+  --steady: #2fae76;         /* armed & listening */
+  --caution: #e3a039;        /* countdown in progress */
+  --alarm: #d6432b;          /* SOS triggered */
+
+  --radius: 10px;
+  --font-display: "IBM Plex Mono", "Courier New", monospace;
+  --font-body: "IBM Plex Sans", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 48px 20px;
+  background: var(--graphite-900);
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.5;
+}
+
+/* ---------- Panel shell ---------- */
+
+.panel {
+  width: 100%;
+  max-width: 460px;
+  background: var(--graphite-800);
+  border: 1px solid var(--graphite-700);
+  border-radius: var(--radius);
+  padding: 28px 28px 24px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 20px 40px -20px rgba(0, 0, 0, 0.6);
+}
+
+/* ---------- Status row (the signature element) ---------- */
+
+.panel__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--graphite-700);
+}
+
+.status-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--ink-dim);
+  flex-shrink: 0;
+}
+
+.status-label {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--ink-dim);
+}
+
+body[data-state="idle"] .status-dot { background: var(--ink-dim); animation: breathe-dim 3s ease-in-out infinite; }
+body[data-state="idle"] .status-label { color: var(--ink-dim); }
+
+body[data-state="listening"] .status-dot { background: var(--steady); animation: breathe-steady 2.4s ease-in-out infinite; }
+body[data-state="listening"] .status-label { color: var(--steady); }
+
+body[data-state="countdown"] .status-dot { background: var(--caution); animation: breathe-caution 0.6s ease-in-out infinite; }
+body[data-state="countdown"] .status-label { color: var(--caution); }
+
+body[data-state="alarm"] .status-dot { background: var(--alarm); animation: ping-alarm 1s ease-out infinite; }
+body[data-state="alarm"] .status-label { color: var(--alarm); }
+
+@keyframes breathe-dim {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(138, 143, 151, 0.35); }
+  50%      { box-shadow: 0 0 0 7px rgba(138, 143, 151, 0); }
+}
+@keyframes breathe-steady {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(47, 174, 118, 0.45); }
+  50%      { box-shadow: 0 0 0 9px rgba(47, 174, 118, 0); }
+}
+@keyframes breathe-caution {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(227, 160, 57, 0.55); }
+  50%      { box-shadow: 0 0 0 8px rgba(227, 160, 57, 0); }
+}
+@keyframes ping-alarm {
+  0%   { box-shadow: 0 0 0 0 rgba(214, 67, 43, 0.6); }
+  70%  { box-shadow: 0 0 0 14px rgba(214, 67, 43, 0); }
+  100% { box-shadow: 0 0 0 14px rgba(214, 67, 43, 0); }
+}
+
+/* ---------- Title block ---------- */
+
+.eyebrow {
+  margin: 0 0 4px;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--caution);
+}
+
+h1 {
+  margin: 0 0 16px;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.instructions {
+  margin: 0 0 18px;
+  font-size: 0.92rem;
+  color: var(--ink-dim);
+}
+
+/* ---------- Keyword plate ---------- */
+
+.plate {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 22px;
+  padding: 0;
+}
+
+.plate li {
+  font-family: var(--font-display);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  padding: 6px 10px;
+  border: 1px solid var(--graphite-700);
+  border-radius: 5px;
+  background: var(--graphite-900);
+  color: var(--ink);
+}
+
+/* ---------- Controls ---------- */
+
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.btn {
+  flex: 1;
+  padding: 13px 18px;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.btn:active { transform: translateY(1px); }
+
+.btn--primary {
+  background: var(--steady);
+  color: #0d1f15;
+  box-shadow: 0 3px 0 #1f7a51, inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+.btn--primary:disabled {
+  background: var(--graphite-700);
+  color: var(--ink-dim);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.btn--alarm {
+  display: none;
+  background: var(--alarm);
+  color: #2a0a05;
+  box-shadow: 0 3px 0 #9c2f1c, inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--caution);
+  outline-offset: 2px;
+}
+
+/* ---------- Readouts ---------- */
+
+.readout-status {
+  font-size: 0.85rem;
+  color: var(--ink-dim);
+  margin-bottom: 4px;
+  min-height: 1.2em;
+}
+
+.readout-countdown {
+  display: none;
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 14vw, 4rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--caution);
+  text-align: center;
+  margin: 6px 0 10px;
+}
+
+/* ---------- Event log ---------- */
+
+.log-section {
+  margin-top: 18px;
+}
+
+.log-section__title {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.log {
+  max-height: 180px;
+  overflow-y: auto;
+  background: var(--graphite-900);
+  border: 1px solid var(--graphite-700);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-family: var(--font-display);
+  font-size: 0.74rem;
+  color: var(--ink-dim);
+}
+
+.log div { padding: 2px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.03); }
+.log div:last-child { border-bottom: none; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 420px) {
+  .panel { padding: 22px 18px 18px; }
+  .controls { flex-direction: column; }
+}
+
+/* ---------- Accessibility ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .status-dot { animation: none !important; }
+}
